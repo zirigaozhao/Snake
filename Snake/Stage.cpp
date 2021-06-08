@@ -1,4 +1,5 @@
 #include "Stage.h"
+#include "Snake.h"
 
 const int STAGE_WIDTH = 17;
 const int STAGE_HEIGHT = 17;
@@ -50,15 +51,11 @@ void Stage::initStage( ) {
 }
 
 void Stage::clearSnake( ) {
-    Stage_type::iterator iter     = _stage.begin( );
-    Stage_type::iterator iter_end = _stage.end( );
-    while ( iter != iter_end ) 	{
-        if ( *iter == '=' ||
-             *iter == '*') {
+    for ( char& ch : _stage ) {
+        if ( ch == '=' || ch == '*' ) {
             continue;
         }
-        *iter = '0';
-        ++iter;
+        ch = '0';
     }
 }
 
@@ -73,10 +70,14 @@ char& Stage::getClipOfStage( const int& x, const int& y ) {
 }
 
 
-Stage& Stage::operator+=( Snake& snake ) {
+void Stage::snakeIntoTheStage( Snake* snake ) {
     clearSnake( );
-    for ( int i = 0; i < snake.getSnake( ).size( ); ++i ) {
-        int x = snake.getSnake( )[ i ].x;
-        int y = snake.getSnake( )[ i ].y;
+    for ( int i = 0; i < snake->getSnake( ).size( ); ++i ) {
+        int idx = xYToIndx( snake->getSnake( )[ i ].x, snake->getSnake( )[ i ].y );
+        char ch = '@';
+        if ( i == 0 ) {
+            ch = '%';
+        }
+        _stage[ idx ] = ch;
     }
 }
