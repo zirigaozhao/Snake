@@ -27,10 +27,16 @@ public:
 	Snake_type getSnake( ) const;
 	DIR& setMoveDir( );
 	DIR getMoveDir( ) const;
+	int moveTarget( ) const;
+	void snakeBodyLinkProcess( );
 private:
 	void initSnake( );
+	int xYToStageIdx( int& x, int& y ) const;
 	void snakeMoveProcess( SNAKE& snake );
 	void snakeGrowthProcess( SNAKE& snake );
+	int moveTargetXYToIdx( const SNAKE& snake ) const;
+	bool isChangeDir( SNAKE& snake );
+	bool isHaveBody( int& idx );
 private:
 	Snake_type _snake;
 	/*Stage* _stage;*/

@@ -18,10 +18,13 @@ Controller::~Controller( ) {
 
 void Controller::update( ) {
 	++_time;
-	//std::thread t1( inputProcess( ) );
+	inputProcess( );
 }
 
 void Controller::inputProcess( ) {
+	if ( !_kbhit( ) ) {
+		return;
+	}
 	_key = KEY::NONE;
 	switch ( _getch( ) ) {
 	case UP:

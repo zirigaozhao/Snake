@@ -1,5 +1,6 @@
 #include "Stage.h"
 #include "Snake.h"
+#include "time.h"
 
 const int STAGE_WIDTH = 17;
 const int STAGE_HEIGHT = 17;
@@ -72,7 +73,7 @@ char& Stage::getClipOfStage( const int& x, const int& y ) {
 
 void Stage::snakeIntoTheStage( Snake* snake ) {
     clearSnake( );
-    for ( int i = 0; i < snake->getSnake( ).size( ); ++i ) {
+    for ( unsigned int i = 0; i < snake->getSnake( ).size( ); ++i ) {
         int idx = xYToIndx( snake->getSnake( )[ i ].x, snake->getSnake( )[ i ].y );
         char ch = '@';
         if ( i == 0 ) {
@@ -80,4 +81,13 @@ void Stage::snakeIntoTheStage( Snake* snake ) {
         }
         _stage[ idx ] = ch;
     }
+}
+
+void Stage::produceFruits( ) {
+    srand( ( unsigned int )time( NULL ) );
+    int idx;
+    do {
+        idx = rand( ) % ( _width * _height );
+    } while ( _stage[ idx ] != '0' );
+    _stage[ idx ] = '*';
 }

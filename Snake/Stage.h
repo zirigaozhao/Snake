@@ -13,6 +13,7 @@ public:
 	int getStageHeight( ) const;
 	Stage_type getStage( ) const;
 	void snakeIntoTheStage( Snake* snake );
+	void produceFruits( );
 private:
 	void initStage( );
 	void clearSnake( );

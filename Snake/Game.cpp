@@ -6,6 +6,8 @@ _view_stage( viewStage ),
 _stage( stage ),
 _snake( snake ) {
 	_list.push_back( controller );
+	_stage->snakeIntoTheStage( snake );
+	_stage->produceFruits( );
 }
 
 Game::~Game( ) {
@@ -24,10 +26,13 @@ void Game::drawStage( ) const {
 
 void Game::snakeProcess( ) {
 	snakeMoveProcess( );
+	_snake->snakeBodyLinkProcess( );
 	bool to_move = _controller->isTimeToMove( );
-	if ( to_move ) {
-		_snake->snakeMove( );
+	if ( !to_move ) {
+		return;
 	}
+	collisionProcess( );
+	_snake->snakeMove( );
 }
 
 void Game::stageProcess( ) {
@@ -63,5 +68,17 @@ void Game::inputProcess( ) {
 	while ( iter != _list.end( ) ) 	{
 		( *iter )->update( );
 		iter++;
+	}
+}
+
+void Game::collisionProcess( ) {
+	int snake_move_target = _snake->moveTarget( );
+	switch ( _stage->getStage( )[ snake_move_target ] ) 	{
+	case '*':
+		_snake->snakeEat( );
+		_stage->produceFruits( );
+		break;
+	default:
+		break;
 	}
 }

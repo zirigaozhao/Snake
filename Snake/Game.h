@@ -20,6 +20,7 @@ private:
 	void stageProcess( );
 	void snakeMoveProcess( );
 	void inputProcess( );
+	void collisionProcess( );
 private:
 	Controller* _controller;
 	ViewStage* _view_stage;
