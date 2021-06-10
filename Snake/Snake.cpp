@@ -6,18 +6,36 @@ _stage( &stage )*/{
 }
 
 Snake::~Snake( ) {
+	free( );
 }
 
 void Snake::snakeMove( ) {
-	Snake_type::iterator it = _snake.begin( );
-	for ( ; it != _snake.end( ); it++ ) {
-		snakeMoveProcess( *it );
+	//通过更改指针所指向的地址更换坐标
+	Snake_type::iterator iter = _snake.begin( );
+	SNAKE_BASE* temp;
+	for ( ; iter != _snake.end( ); ++iter ) {
+		if ( iter == _snake.begin( ) ) {
+			temp->x = Head( *iter )->x;
+			temp->y = Head( *iter )->y;
+			snakeMoveProcess( *iter );
+			continue;
+		}
+		SNAKE_BASE* t;
+		t = *iter;
+		*iter = temp;
+		temp = t;
+		delete t;
 	}
+	delete temp;
+	/*Snake_type::iterator it = _snake.begin( );
+	for ( ; it != _snake.end( ); it++ ) {
+		snakeMoveProcess( **it );
+	}*/
 }
 
 void Snake::snakeEat( ) {
-	SNAKE snake;
-	snakeGrowthProcess( snake );
+	SNAKE_BASE* snake = new SNAKE_BODY( );
+	snakeGrowthProcess( *snake );
 	_snake.push_back( snake );
 }
 
@@ -26,26 +44,29 @@ Snake::Snake_type Snake::getSnake( ) const {
 }
 
 Snake::DIR& Snake::setMoveDir( ) {
-	return _snake[ 0 ].dir;
+	return Head( _snake[ 0 ] )->dir;
 }
 
 Snake::DIR Snake::getMoveDir( ) const {
-	return _snake[ 0 ].dir;
+	return Head( _snake[ 0 ] )->dir;
 }
 
 int Snake::moveTarget( ) const {
-	return moveTargetXYToIdx( _snake[ 0 ] );
+	return moveTargetXYToIdx(  *Head( _snake[ 0 ] ) );
 }
 
 void Snake::initSnake( ) {
 	int init_width = /*_stage->getStageWidth( )*/17 / 2;
 	int init_height = /*_stage->getStageHeight( )*/17 / 2;
 	for ( int i = 0; i < 3; ++i ) {
-		SNAKE snake;
-		snake.x = init_width - i;
-		snake.y = init_height;
-		snake.dir = DIR::RIGHT;
-		_snake.push_back( snake );
+		if ( i == 0 ) {
+			SNAKE_HEAD* snake_head = new SNAKE_HEAD( );
+			snake_head->x = init_width - i;
+			snake_head->y = init_height;
+			snake_head->dir = DIR::RIGHT;
+			_snake.push_back( snake_head );
+		}
+		
 	}
 }
 
@@ -54,27 +75,28 @@ int Snake::xYToStageIdx( int& x, int& y ) const {
 	return y * 17 + x;
 }
 
-void Snake::snakeMoveProcess( SNAKE& snake ) {
+void Snake::snakeMoveProcess( SNAKE_BASE* snake ) {
 	//需要重写，只对蛇头做xy位移剩下的做xy拷贝处理
-	switch ( snake.dir ) 	{
+	switch ( Head( snake )->dir ) 	{
 	case DIR::UP:
-		--snake.y;
+		--Head( snake )->y;
 		break;
 	case DIR::DOWN:
-		++snake.y;
+		++Head( snake )->y;
 		break;
 	case DIR::LEFT:
-		--snake.x;
+		--Head( snake )->x;
 		break;
 	case DIR::RIGHT:
-		++snake.x;
+		++Head( snake )->x;
 		break;
 	default:
 		break;
 	}
 }
 
-void Snake::snakeGrowthProcess( SNAKE& snake ) {
+void Snake::snakeGrowthProcess( SNAKE_BASE& snake ) {
+	//添加蛇身
 	Snake_type::iterator iter = _snake.end( );
 	iter--;
 	snake.x = iter->x;
@@ -99,6 +121,7 @@ void Snake::snakeGrowthProcess( SNAKE& snake ) {
 }
 
 void Snake::snakeBodyLinkProcess( ) {
+	//如果实现拷贝移动本函数废弃
 	//遍历蛇的身体（不包括蛇头）
 	for ( unsigned int i = 1; i < _snake.size( ); ++i ) {
 		if ( isChangeDir( _snake[ i ] ) ) {
@@ -108,7 +131,7 @@ void Snake::snakeBodyLinkProcess( ) {
 	}
 }
 
-int Snake::moveTargetXYToIdx( const SNAKE& snake ) const {
+int Snake::moveTargetXYToIdx( const SNAKE_HEAD& snake ) const {
 	int idx = -1;
 	int x = snake.x;
 	int y = snake.y;
@@ -153,4 +176,13 @@ bool Snake::isHaveBody( int& idx ) {
 		}
 	}
 	return false;
+}
+
+void Snake::free( ) {
+	Snake_type::iterator iter = _snake.begin( );
+	while ( iter != _snake.end( ) ) 	{
+		delete* iter;
+		_snake.erase( iter );
+		iter++;
+	}
 }
