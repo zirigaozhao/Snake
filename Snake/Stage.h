@@ -19,6 +19,7 @@ private:
 	void clearSnake( );
 	int xYToIndx( const int& x, const int& y );
 	char& getClipOfStage( const int& x, const int& y );
+	void snakeHeadOrBody( const int& idx, Snake* snake, int& x, int& y );
 private:
 	Stage_type _stage;
 	int _width;

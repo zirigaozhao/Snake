@@ -26,12 +26,12 @@ void Game::drawStage( ) const {
 
 void Game::snakeProcess( ) {
 	snakeMoveProcess( );
-	_snake->snakeBodyLinkProcess( );
+	//_snake->snakeBodyLinkProcess( );
 	bool to_move = _controller->isTimeToMove( );
 	if ( !to_move ) {
 		return;
 	}
-	collisionProcess( );
+	//collisionProcess( );
 	_snake->snakeMove( );
 }
 

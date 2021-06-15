@@ -2,6 +2,7 @@
 
 Snake::Snake( /*Stage& stage*/ )/* :
 _stage( &stage )*/{
+	_snake = new Snake::Snake_type;
 	initSnake();
 }
 
@@ -11,22 +12,20 @@ Snake::~Snake( ) {
 
 void Snake::snakeMove( ) {
 	//通过更改指针所指向的地址更换坐标
-	Snake_type::iterator iter = _snake.begin( );
-	SNAKE_BASE* temp;
-	for ( ; iter != _snake.end( ); ++iter ) {
-		if ( iter == _snake.begin( ) ) {
+	Snake_type::iterator iter = _snake->begin( );
+	Snake_type::iterator end_iter = _snake->end( );
+	SNAKE_BASE* temp = new SNAKE_BASE( );
+	for ( ; iter != _snake->end( ); ++iter ) {
+		if ( iter == _snake->begin( ) ) {
 			temp->x = Head( *iter )->x;
 			temp->y = Head( *iter )->y;
 			snakeMoveProcess( *iter );
 			continue;
 		}
-		SNAKE_BASE* t;
-		t = *iter;
-		*iter = temp;
-		temp = t;
-		delete t;
+		changeBodyXY( iter, temp );
 	}
 	delete temp;
+
 	/*Snake_type::iterator it = _snake.begin( );
 	for ( ; it != _snake.end( ); it++ ) {
 		snakeMoveProcess( **it );
@@ -34,25 +33,25 @@ void Snake::snakeMove( ) {
 }
 
 void Snake::snakeEat( ) {
-	SNAKE_BASE* snake = new SNAKE_BODY( );
-	snakeGrowthProcess( *snake );
-	_snake.push_back( snake );
+	SNAKE_BODY* snake = new SNAKE_BODY( );
+	//snakeGrowthProcess( *snake );
+	_snake->push_back( snake );
 }
 
 Snake::Snake_type Snake::getSnake( ) const {
-	return _snake;
+	return *_snake;
 }
 
 Snake::DIR& Snake::setMoveDir( ) {
-	return Head( _snake[ 0 ] )->dir;
+	return Head( _snake->at( 0 ) )->dir;
 }
 
 Snake::DIR Snake::getMoveDir( ) const {
-	return Head( _snake[ 0 ] )->dir;
+	return Head( _snake->at( 0 ) )->dir;
 }
 
 int Snake::moveTarget( ) const {
-	return moveTargetXYToIdx(  *Head( _snake[ 0 ] ) );
+	return moveTargetXYToIdx(  *Head( _snake->at( 0 ) ) );
 }
 
 void Snake::initSnake( ) {
@@ -61,12 +60,16 @@ void Snake::initSnake( ) {
 	for ( int i = 0; i < 3; ++i ) {
 		if ( i == 0 ) {
 			SNAKE_HEAD* snake_head = new SNAKE_HEAD( );
-			snake_head->x = init_width - i;
+			snake_head->x = init_width;
 			snake_head->y = init_height;
 			snake_head->dir = DIR::RIGHT;
-			_snake.push_back( snake_head );
+			_snake->push_back( snake_head );
+		} else {
+			SNAKE_BODY* snake_body = new SNAKE_BODY( );
+			snake_body->x = init_width - i;
+			snake_body->y = init_height;
+			_snake->push_back( snake_body );
 		}
-		
 	}
 }
 
@@ -95,7 +98,7 @@ void Snake::snakeMoveProcess( SNAKE_BASE* snake ) {
 	}
 }
 
-void Snake::snakeGrowthProcess( SNAKE_BASE& snake ) {
+/*void Snake::snakeGrowthProcess( SNAKE_BASE& snake ) {
 	//添加蛇身
 	Snake_type::iterator iter = _snake.end( );
 	iter--;
@@ -119,8 +122,8 @@ void Snake::snakeGrowthProcess( SNAKE_BASE& snake ) {
 	}
 	snake.dir = iter->dir;
 }
-
-void Snake::snakeBodyLinkProcess( ) {
+*/
+/*void Snake::snakeBodyLinkProcess( ) {
 	//如果实现拷贝移动本函数废弃
 	//遍历蛇的身体（不包括蛇头）
 	for ( unsigned int i = 1; i < _snake.size( ); ++i ) {
@@ -130,7 +133,7 @@ void Snake::snakeBodyLinkProcess( ) {
 		}
 	}
 }
-
+*/
 int Snake::moveTargetXYToIdx( const SNAKE_HEAD& snake ) const {
 	int idx = -1;
 	int x = snake.x;
@@ -160,15 +163,30 @@ int Snake::moveTargetXYToIdx( const SNAKE_HEAD& snake ) const {
 	return idx;
 }
 
-bool Snake::isChangeDir( SNAKE& snake ) {
+void Snake::changeBodyXY( Snake_type::iterator& base1, SNAKE_BASE* base2) {
+	SNAKE_BASE* t = new SNAKE_BASE;
+	if ( base1 != _snake->end( ) ) {
+		t->x = Body( *base1 )->x;
+		t->y = Body( *base1 )->y;
+	}
+	Body( *base1 )->x = Body( base2 )->x;
+	Body( *base1 )->y = Body( base2 )->y;
+	if ( base1 != _snake->end( ) ) {
+		Body( base2 )->x = t->x;
+		Body( base2 )->y = t->y;
+	}
+	delete t;
+}
+
+/*bool Snake::isChangeDir( SNAKE& snake ) {
 	int idx = moveTargetXYToIdx( snake );
 	if ( !isHaveBody( idx ) ) {
 		return true;
 	}
 	return false;
 }
-
-bool Snake::isHaveBody( int& idx ) {
+*/
+/*bool Snake::isHaveBody( int& idx ) {
 	for ( SNAKE& snake : _snake ) {
 		int target_idx = xYToStageIdx( snake.x, snake.y );
 		if ( idx == target_idx ) {
@@ -177,12 +195,13 @@ bool Snake::isHaveBody( int& idx ) {
 	}
 	return false;
 }
-
+*/
 void Snake::free( ) {
-	Snake_type::iterator iter = _snake.begin( );
-	while ( iter != _snake.end( ) ) 	{
+	Snake_type::iterator iter = _snake->begin( );
+	while ( iter != _snake->end( ) ) 	{
 		delete* iter;
-		_snake.erase( iter );
+		_snake->erase( iter );
 		iter++;
 	}
+	delete _snake;
 }

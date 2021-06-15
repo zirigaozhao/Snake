@@ -1,6 +1,7 @@
-#include "Stage.h"
+﻿#include "Stage.h"
 #include "Snake.h"
 #include "time.h"
+#include <iostream>
 
 const int STAGE_WIDTH = 17;
 const int STAGE_HEIGHT = 17;
@@ -70,11 +71,27 @@ char& Stage::getClipOfStage( const int& x, const int& y ) {
     return _stage[ idx ];
 }
 
+void Stage::snakeHeadOrBody( const int& idx, Snake* snake, int& x, int& y ) {
+    if ( idx == 0 ) {
+        x = Head( snake->getSnake( ).at( 0 ) )->x;
+        y = Head( snake->getSnake( ).at( 0 ) )->y;
+    } else {
+        x = Body( snake->getSnake( ).at( idx ) )->x;
+        y = Body( snake->getSnake( ).at( idx ) )->y;
+    }
+}
+
 
 void Stage::snakeIntoTheStage( Snake* snake ) {
     clearSnake( );
     for ( unsigned int i = 0; i < snake->getSnake( ).size( ); ++i ) {
-        int idx = xYToIndx( snake->getSnake( )[ i ].x, snake->getSnake( )[ i ].y );
+        int x = -1;
+        int y = -1;
+        snakeHeadOrBody( i, snake, x, y );
+        if ( x < 0 || y < 0 ) {
+            std::domain_error( "蛇类内坐标数据异常！！" );
+        }
+        int idx = xYToIndx( x, y );
         char ch = '@';
         if ( i == 0 ) {
             ch = '%';
